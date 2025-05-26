@@ -123,3 +123,4 @@ def main(ticker):
      else:
           print(f"Could not retrieve data for {ticker}. Please check the ticker symbol or date range.")
             
+main("AAPL")

@@ -26,10 +26,21 @@ def change(ticker):
   return aa,str(d12)
 
 def nm(n):
-    n=n-1
     x=df.iloc[n, 1]
     return str(x)
 
 
 num_rows = len(df.index)
 
+xx="+-------------------Main Menu-------------------+"
+x=""
+for i in range(0,num_rows,1):
+   y=str(i+1)
+   x1=y+". For "+nm(i)+" press "+y
+   z=len(xx)-len(x1)-2
+   t=" "*z
+   x=xx+"\n|"+x1+t+"|"
+   if i==num_rows:
+      x=x+"\n+-----------------------------------------------+"
+   
+print(x)

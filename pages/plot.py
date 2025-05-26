@@ -22,7 +22,7 @@ def main(ticker):
           # Plot adjusted close price data
           plt.plot(data['Close'])
           plt.xlabel('Date')
-          plt.label('Adjusted Close Price')
+          print('Adjusted Close Price')
           plt.title(f'{ticker} Adjusted Close Price Data')
           plt.show()
 

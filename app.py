@@ -165,7 +165,7 @@ while True:
       
      print(x+"\n+-----------------------------------------------+")
 
-     inp=input("Enter:").lower()
+     inp=int(input("Enter:").lower())
 
      if inp=="q":
          quit

@@ -58,19 +58,19 @@ def main(ticker):
           print("Financial Statements")
 
           try:
-              print("### Income Statement (Annual)")
+              print("Income Statement (Annual)")
               print(stock.financials)
           except Exception as e:
               print(f"Could not retrieve annual income statement: {e}")
 
           try:
-              print("### Balance Sheet (Annual)")
+              print("Balance Sheet (Annual)")
               print(stock.balance_sheet)
           except Exception as e:
               print(f"Could not retrieve annual balance sheet: {e}")
 
           try:
-              print("### Cash Flow Statement (Annual)")
+              print("Cash Flow Statement (Annual)")
               print(stock.cashflow)
           except Exception as e:
               print(f"Could not retrieve annual cash flow statement: {e}")
@@ -80,19 +80,19 @@ def main(ticker):
           # Quarterly Financials
           print("Quarterly Financials")
           try:
-              print("### Income Statement (Quarterly)")
+              print("Income Statement (Quarterly)")
               print(stock.quarterly_financials)
           except Exception as e:
               print(f"Could not retrieve quarterly income statement: {e}")
 
           try:
-              print("### Balance Sheet (Quarterly)")
+              print("Balance Sheet (Quarterly)")
               print(stock.quarterly_balance_sheet)
           except Exception as e:
               print(f"Could not retrieve quarterly balance sheet: {e}")
 
           try:
-              print("### Cash Flow Statement (Quarterly)")
+              print("Cash Flow Statement (Quarterly)")
               print(stock.quarterly_cashflow)
           except Exception as e:
               print(f"Could not retrieve quarterly cash flow statement: {e}")
@@ -121,11 +121,11 @@ def main(ticker):
           print("Company Information")
           try:
               info = stock.info
-              print(f"**Sector:** {info.get('sector', 'N/A')}")
-              print(f"**Industry:** {info.get('industry', 'N/A')}")
-              print(f"**Full Time Employees:** {info.get('fullTimeEmployees', 'N/A')}")
-              print(f"**Website:** {info.get('website', 'N/A')}")
-              print("**Summary:**")
+              print(f"Sector: {info.get('sector', 'N/A')}")
+              print(f"Industry: {info.get('industry', 'N/A')}")
+              print(f"Full Time Employees: {info.get('fullTimeEmployees', 'N/A')}")
+              print(f"Website: {info.get('website', 'N/A')}")
+              print("Summary:")
               print(info.get('longBusinessSummary', 'N/A'))
           except Exception as e:
               print(f"Could not retrieve company information: {e}")

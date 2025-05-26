@@ -185,8 +185,8 @@ while True:
          print("|10.For going back to main menu press B    |")
          print("+------------------------------------------+")  
 
-         innp=input("Enter:")
-         if innp=="B":
+         innp=int(input("Enter:"))
+         if str(innp)=="B":
              quit
          elif innp==1:
              main.historical(ticker)

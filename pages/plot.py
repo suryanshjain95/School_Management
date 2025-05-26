@@ -13,17 +13,17 @@ end_date = today # Set default to today
 
 def main(ticker):
      # Get the data
-     data = yf.download(ticker_symbol, start_date, end_date)
+     data = yf.download(ticker, start_date, end_date)
 
      if not data.empty:
-          st.subheader("Historical Stock Prices")
+          print("Historical Stock Prices")
           print(data.tail()) # Display last 5 rows
 
           # Plot adjusted close price data
           plt.plot(data['Close'])
           plt.xlabel('Date')
           plt.label('Adjusted Close Price')
-          plt.title(f'{ticker_symbol} Adjusted Close Price Data')
+          plt.title(f'{ticker} Adjusted Close Price Data')
           plt.show()
 
           # Add more plots and data:
@@ -31,12 +31,12 @@ def main(ticker):
           plt.plot(data['Volume'], color='orange')
           plt.xlabel('Date')
           plt.ylabel('Volume')
-          plt.title(f'{ticker_symbol} Trading Volume')
+          plt.title(f'{ticker} Trading Volume')
           plt.show()
 
           # Dividends and Stock Splits
           print("Dividends and Stock Splits")
-          stock = yf.Ticker(ticker_symbol)
+          stock = yf.Ticker(ticker)
           dividends = stock.dividends
           splits = stock.splits
 
@@ -121,5 +121,5 @@ def main(ticker):
               print(f"Could not retrieve company information: {e}")
             
      else:
-          print(f"Could not retrieve data for {ticker_symbol}. Please check the ticker symbol or date range.")
+          print(f"Could not retrieve data for {ticker}. Please check the ticker symbol or date range.")
             

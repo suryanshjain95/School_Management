@@ -12,21 +12,28 @@ today = date.today()
 start_date = '1990-01-01'
 end_date = today
 
-def main(ticker):
-     # Get the data
-     data = yf.download(ticker, start_date, end_date)
 
-     def historical(ticker):
+# Get the data
+     
+def historical(ticker):
+          data = yf.download(ticker, start_date, end_date)
+
           print("Historical Stock Prices")
           print(data.tail()) # Display last 5 rows
-     def closeplot(ticker):
+
+def closeplot(ticker):
+          data = yf.download(ticker, start_date, end_date)
+
           # Plot adjusted close price data
           plt.plot(data['Close'])
           plt.xlabel('Date')
           print('Adjusted Close Price')
           plt.title(f'{ticker} Adjusted Close Price Data')
           plt.show()
-     def volume(ticker):
+
+def volume(ticker):
+          data = yf.download(ticker, start_date, end_date)
+
           # Add more plots and data:
           print("Volume Data")
           plt.plot(data['Volume'], color='orange')
@@ -34,7 +41,8 @@ def main(ticker):
           plt.ylabel('Volume')
           plt.title(f'{ticker} Trading Volume')
           plt.show()
-     def divident(ticker):
+          
+def divident(ticker):
           # Dividends and Stock Splits
           print("Dividends and Stock Splits")
           stock = yf.Ticker(ticker)
@@ -53,7 +61,7 @@ def main(ticker):
           else:
               print("No stock split data available for this stock.")
 
-     def statement(ticker):
+def statement(ticker):
           # Financial Statements (Income Statement, Balance Sheet, Cash Flow)
           stock = yf.Ticker(ticker)
           print("Financial Statements")
@@ -76,7 +84,7 @@ def main(ticker):
           except Exception as e:
               print(f"Could not retrieve annual cash flow statement: {e}")
 
-     def quartely(ticker):
+def quartely(ticker):
           stock = yf.Ticker(ticker)
           # Quarterly Financials
           print("Quarterly Financials")
@@ -98,7 +106,7 @@ def main(ticker):
           except Exception as e:
               print(f"Could not retrieve quarterly cash flow statement: {e}")
 
-     def share(ticker):
+def share(ticker):
           stock = yf.Ticker(ticker)      
           # Institutional Shareholders
           print("Institutional Shareholders")
@@ -107,7 +115,7 @@ def main(ticker):
           except Exception as e:
               print(f"Could not retrieve institutional holders: {e}")
 
-     def analyst(ticker):
+def analyst(ticker):
           stock = yf.Ticker(ticker)      
           # Analyst Recommendations
           print("Analyst Recommendations")
@@ -116,7 +124,7 @@ def main(ticker):
           except Exception as e:
               print(f"Could not retrieve analyst recommendations: {e}")
 
-     def infrom(ticker):
+def infrom(ticker):
           stock = yf.Ticker(ticker)      
           # Company Info (Summary)
           print("Company Information")

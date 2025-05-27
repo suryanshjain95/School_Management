@@ -2,7 +2,7 @@ import pandas as pd
 import yfinance as yf
 from datetime import date
 #import time
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 
 df = pd.read_csv('pages/data.csv')
@@ -30,6 +30,7 @@ def closeplot(ticker):
           print('Adjusted Close Price')
           plt.title(f'{ticker} Adjusted Close Price Data')
           plt.show()
+          plt.savefig('my_plot.png')
 
 def volume(ticker):
           data = yf.download(ticker, start_date, end_date)
@@ -41,6 +42,7 @@ def volume(ticker):
           plt.ylabel('Volume')
           plt.title(f'{ticker} Trading Volume')
           plt.show()
+          plt.savefig('my_plot.png')
           
 def divident(ticker):
           # Dividends and Stock Splits
@@ -193,26 +195,26 @@ while True:
          print("|10.For going back to main menu press B    |")
          print("+------------------------------------------+")  
 
-         innp=int(input("Enter:"))
+         innp=input("Enter:")
          if str(innp)=="B":
              quit
-         elif innp==1:
-             main.historical(ticker)
-         elif innp==2:
-             main.closeplot(ticker)
-         elif innp==3:
-             main.volume(ticker)
-         elif innp==4:
-             main.divident(ticker)
-         elif innp==5:
-             main.statement(ticker)
-         elif innp==6:
-             main.quartely(ticker)
-         elif innp==7:
-             main.share(ticker)
-         elif innp==8:
-             main.analyst(ticker)
-         elif innp==9:
-             main.inform(ticker)
+         elif  int(innp)==1:
+              historical(ticker)
+         elif  int(innp)==2:
+              closeplot(ticker)
+         elif  int(innp)==3:
+              volume(ticker)
+         elif  int(innp)==4:
+              divident(ticker)
+         elif  int(innp)==5:
+              statement(ticker)
+         elif  int(innp)==6:
+              quartely(ticker)
+         elif  int(innp)==7:
+              share(ticker)
+         elif  int(innp)==8:
+              analyst(ticker)
+         elif  int(innp)==9:
+              infrom(ticker)
          else:
              print("ERROR")                                                   

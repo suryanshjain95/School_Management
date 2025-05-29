@@ -1,2 +1,2 @@
-# School_Management
-provide all functionality for smooth processing of school
+# Stock Analysis
+provide all functionality for smooth stock data gathering

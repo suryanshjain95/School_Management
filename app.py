@@ -181,18 +181,18 @@ while True:
     else:
         ticker = df.iloc[inp-1,2]
     while True:
-        print("+-----------------Sub Menu-----------------+")
-        print("|1.For Historical Stock Prices press 1     |")    
-        print("|2.For Adjusted Close Price press 2        |")  
-        print("|3.For Volume Data press 3                 |")
-        print("|4.For Dividends and Stock Splits press 4  |") 
-        print("|5.For Financial Statements press 5        |") 
-        print("|6.For Quarterly Financials press 6        |")   
-        print("|7.For Institutional Shareholders press 7  |")    
-        print("|8.For Analyst Recommendations press 8     |")
-        print("|9.For Company Info press 9                |")
-        print("|10.For going back to main menu press B    |")
-        print("+------------------------------------------+")
+        print("+-----------Sub Menu-----------+")
+        print("|1.Historical Stock Prices     |")    
+        print("|2.Adjusted Close Price        |")  
+        print("|3.Volume Data                 |")
+        print("|4.Dividends and Stock Splits  |") 
+        print("|5.Financial Statements        |") 
+        print("|6.Quarterly Financials        |")   
+        print("|7.Institutional Shareholders  |")    
+        print("|8.Analyst Recommendations     |")
+        print("|9.Company Info                |")
+        print("|B.Going back to main menu     |")
+        print("+------------------------------+")
 
         innp = input("Enter:")
         if str(innp) == "B":

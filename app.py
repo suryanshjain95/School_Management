@@ -1,8 +1,9 @@
 import pandas as pd
 import yfinance as yf
 from datetime import date
-#import time
+import numpy as np
 import matplotlib.pyplot as plt
+from tabulate import tabulate
 
 
 df = pd.read_csv('pages/data.csv')
@@ -12,6 +13,24 @@ today = date.today()
 start_date = '1990-01-01'
 end_date = today
 
+def frame(df):
+     index_list = list(df.index)
+     table = tabulate(df, headers=index_list, tablefmt="grid")
+     print(table)
+
+def ad(df):
+     e1=input("Enter Stock name:")
+     e2=input("Enter Stock Id:").upper()
+     e=pd.DataFrame([[e1, e2]], columns=['Name', 'stock'])
+     df = pd.concat([df, e], ignore_index=True)
+     df.to_csv("pages/data.csv")
+
+def dl(df):
+     e=input("Enter Stock name")
+     df=df.drop(np.where(df['Name'] ==e)[0])
+     #df=df.drop(e)
+     print(df)
+     df.to_csv("pages/data.csv")
 
 # Get the data
      
@@ -19,7 +38,7 @@ def historical(ticker):
           data = yf.download(ticker, start_date, end_date)
 
           print("Historical Stock Prices")
-          print(data.tail()) # Display last 5 rows
+          frame(data.tail()) # Display last 5 rows
 
 def closeplot(ticker):
           data = yf.download(ticker, start_date, end_date)
@@ -76,13 +95,13 @@ def statement(ticker):
 
           try:
               print("Balance Sheet (Annual)")
-              print(stock.balance_sheet)
+              frame(stock.balance_sheet)
           except Exception as e:
               print(f"Could not retrieve annual balance sheet: {e}")
 
           try:
               print("Cash Flow Statement (Annual)")
-              print(stock.cashflow)
+              frame(stock.cashflow)
           except Exception as e:
               print(f"Could not retrieve annual cash flow statement: {e}")
 
@@ -98,13 +117,13 @@ def quartely(ticker):
 
           try:
               print("Balance Sheet (Quarterly)")
-              print(stock.quarterly_balance_sheet)
+              frame(stock.quarterly_balance_sheet)
           except Exception as e:
               print(f"Could not retrieve quarterly balance sheet: {e}")
 
           try:
               print("Cash Flow Statement (Quarterly)")
-              print(stock.quarterly_cashflow)
+              frame(stock.quarterly_cashflow)
           except Exception as e:
               print(f"Could not retrieve quarterly cash flow statement: {e}")
 
@@ -113,7 +132,7 @@ def share(ticker):
           # Institutional Shareholders
           print("Institutional Shareholders")
           try:
-              print(stock.institutional_holders)
+              frame(stock.institutional_holders)
           except Exception as e:
               print(f"Could not retrieve institutional holders: {e}")
 
@@ -122,7 +141,7 @@ def analyst(ticker):
           # Analyst Recommendations
           print("Analyst Recommendations")
           try:
-              print(stock.recommendations)
+              frame(stock.recommendations)
           except Exception as e:
               print(f"Could not retrieve analyst recommendations: {e}")
 
@@ -142,22 +161,8 @@ def infrom(ticker):
               print(f"Could not retrieve company information: {e}")
             
 
-#ticker = 'AAPL'
-def change(ticker):
-
-  data = yf.download(ticker, start_date, end_date)
-  #time.sleep(4)
-  #print(data)
-  d2=data.iloc[-1,3]
-  d1=data.iloc[-1,0]
-  d12=d2-d1
-  cha=(d12*100)/d2
-  aa=str(cha)
-  aa=aa[0:5]+"%"
-  return aa,str(d12)
-
 def nm(n):
-    x=df.iloc[n, 1]
+    x=df.loc[n, "Name"]
     return str(x)
 
 
@@ -173,15 +178,21 @@ while True:
         x=x+"\n|"+x1+t+"|"
    
       
-     print(x+"\n+-----------------------------------------------+")
+     print(x+"\n|"+str(len(df)+1)+". Press A to add new stock                   "+"|\n|"+str(len(df)+2)+
+           ". Press D to delete a stock                  "+
+           "|\n+-----------------------------------------------+")
 
-     inp=int(input("Enter:").lower())
+     inp=str(input("Enter:").lower())
 
      if inp=="q":
-         quit
+      break
+     elif inp=="a":
+          ad(df)
+     elif inp=="d":
+          dl(df)     
      else:
-         ticker=df.iloc[inp-1,2]
-     while True:
+      ticker=df.iloc[int(inp)-1,2]
+      while True:
          print("+-----------------Sub Menu-----------------+")
          print("|1.For Historical Stock Prices press 1     |")    
          print("|2.For Adjusted Close Price press 2        |")  
@@ -197,7 +208,7 @@ while True:
 
          innp=input("Enter:")
          if str(innp)=="B":
-             quit
+             break
          elif  int(innp)==1:
               historical(ticker)
          elif  int(innp)==2:

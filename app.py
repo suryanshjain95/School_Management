@@ -21,9 +21,10 @@ def frame(df):
 def ad(df):
      e1=input("Enter Stock name:")
      e2=input("Enter Stock Id:").upper()
-     e=pd.DataFrame([[e1, e2]], columns=['Name', 'stock'])
-     df = pd.concat([df, e], ignore_index=True)
-     df.to_csv("pages/data.csv")
+     df.loc[len(df)]=[len(df),e1,e2]
+     #e=pd.DataFrame({'SNo':[len(df)],'Name':[e1],'stock': [e2]})
+     #df = pd.concat([df, e], ignore_index=True)
+     df.to_csv("pages/data.csv",index=False)
 
 def dl(df):
      e=input("Enter Stock name")
@@ -207,25 +208,28 @@ while True:
          print("+------------------------------------------+")  
 
          innp=input("Enter:")
-         if str(innp)=="B":
-             break
-         elif  int(innp)==1:
-              historical(ticker)
-         elif  int(innp)==2:
-              closeplot(ticker)
-         elif  int(innp)==3:
-              volume(ticker)
-         elif  int(innp)==4:
-              divident(ticker)
-         elif  int(innp)==5:
-              statement(ticker)
-         elif  int(innp)==6:
-              quartely(ticker)
-         elif  int(innp)==7:
-              share(ticker)
-         elif  int(innp)==8:
-              analyst(ticker)
-         elif  int(innp)==9:
-              infrom(ticker)
+         if str(innp) == "B":
+            quit()
          else:
-             print("ERROR")                                                   
+            match innp:
+                case 1:
+                    historical(ticker)
+                case 2:
+                    closeplot(ticker)
+                case 3:
+                    volume(ticker)
+                case 4:
+                    divident(ticker)
+                case 5:
+                    statement(ticker)
+                case 6:
+                    quartely(ticker)
+                case 7:
+                    share(ticker)
+                case 8:
+                    analyst(ticker)
+                case 9:
+                    infrom(ticker)
+                case _:
+                    print("ERROR")
+                    pass

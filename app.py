@@ -211,7 +211,7 @@ while True:
          if str(innp) == "B":
             quit()
          else:
-            match innp:
+            match int(innp):
                 case 1:
                     historical(ticker)
                 case 2:

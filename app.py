@@ -21,17 +21,18 @@ def frame(df):
 def ad(df):
      e1=input("Enter Stock name:")
      e2=input("Enter Stock Id:").upper()
-     df.loc[len(df)]=[len(df),e1,e2]
+     x=len(df)+1
+     df.loc[len(df)]=[x,e1,e2]
      #e=pd.DataFrame({'SNo':[len(df)],'Name':[e1],'stock': [e2]})
      #df = pd.concat([df, e], ignore_index=True)
      df.to_csv("pages/data.csv",index=False)
 
 def dl(df):
-     e=input("Enter Stock name")
+     e=input("Enter Stock name:")
      df=df.drop(np.where(df['Name'] ==e)[0])
      #df=df.drop(e)
      print(df)
-     df.to_csv("pages/data.csv")
+     df.to_csv("pages/data.csv",index=False)
 
 # Get the data
      
@@ -207,9 +208,9 @@ while True:
          print("|10.For going back to main menu press B    |")
          print("+------------------------------------------+")  
 
-         innp=input("Enter:")
+         innp=input("Enter:").upper()
          if str(innp) == "B":
-            quit()
+            break
          else:
             match int(innp):
                 case 1:

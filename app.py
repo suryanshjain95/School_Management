@@ -26,6 +26,7 @@ def ad(df):
      #e=pd.DataFrame({'SNo':[len(df)],'Name':[e1],'stock': [e2]})
      #df = pd.concat([df, e], ignore_index=True)
      df.to_csv("data.csv",index=False)
+     df = pd.read_csv('data.csv')
 
 def dl(df):
      e=input("Enter Stock name:")
@@ -33,6 +34,7 @@ def dl(df):
      #df=df.drop(e)
      print(df)
      df.to_csv("data.csv",index=False)
+     df = pd.read_csv('data.csv')
 
 # Get the data
      

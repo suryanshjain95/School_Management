@@ -25,14 +25,14 @@ def ad(df):
      df.loc[len(df)]=[x,e1,e2]
      #e=pd.DataFrame({'SNo':[len(df)],'Name':[e1],'stock': [e2]})
      #df = pd.concat([df, e], ignore_index=True)
-     df.to_csv("pages/data.csv",index=False)
+     df.to_csv("data.csv",index=False)
 
 def dl(df):
      e=input("Enter Stock name:")
      df=df.drop(np.where(df['Name'] ==e)[0])
      #df=df.drop(e)
      print(df)
-     df.to_csv("pages/data.csv",index=False)
+     df.to_csv("data.csv",index=False)
 
 # Get the data
      

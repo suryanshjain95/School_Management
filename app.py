@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from tabulate import tabulate
 
 
-df = pd.read_csv('pages/data.csv')
+df = pd.read_csv('data.csv')
 
 today = date.today()
 

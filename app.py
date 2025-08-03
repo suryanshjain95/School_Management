@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from tabulate import tabulate
 
 
-df = pd.read_csv('data.csv')
 
 today = date.today()
 
@@ -171,8 +170,28 @@ def nm(n):
 
 
 num_rows = len(df.index)
-while True:
-     xx="+-------------------Main Menu-------------------+"
+
+def online():
+  while True:   
+     print("+------------------Online mode------------------+\n",
+           "| 1.Press S to search stock                     |\n",
+           "| 2.Press A to add stock                        |\n",
+           "| 3.Press D to delete stock                     |\n",
+           "| 4.Press Q to quit                             |\n",
+           "+-----------------------------------------------+")
+     inp=str(input("Enter:").lower())
+     if inp=="q":
+      break
+     elif inp=="a":
+          ad(df)
+     elif inp=="d":
+          dl(df)  
+
+
+def offline():
+ df = pd.read_csv('data.csv')
+ while True:
+     xx="+-----------------Offline mode------------------+"
      x=""+xx
      for i in range(0,num_rows,1):
         y=str(i+1)
@@ -195,6 +214,12 @@ while True:
      elif inp=="d":
           dl(df)     
      else:
+      sub_menu_offline(df,inp)
+
+def sub_menu_offline(df,inp):
+     print("offline")
+
+def sub_menu_online(df,inp):      
       ticker=df.iloc[int(inp)-1,2]
       while True:
          print("+-----------------Sub Menu-----------------+")

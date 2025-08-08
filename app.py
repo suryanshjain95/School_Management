@@ -6,6 +6,11 @@ import matplotlib.pyplot as plt
 from tabulate import tabulate
 
 
+##########
+df = pd.read_csv('data.csv')
+dfo=df
+##########
+
 
 today = date.today()
 
@@ -164,12 +169,18 @@ def infrom(ticker):
               print(f"Could not retrieve company information: {e}")
             
 
-def nm(n):
-    x=df.loc[n, "Name"]
-    return str(x)
 
 
-num_rows = len(df.index)
+
+
+def search():
+     global dfo
+     inp=input("Enter Stock you want to search for:")
+     row_index = dfo[dfo['Name'] == inp].index[0]
+     print(row_index)
+     x=dfo.loc[row_index,"stock"]
+     sub_menu_online(x)
+
 
 def online():
   while True:   
@@ -182,14 +193,23 @@ def online():
      inp=str(input("Enter:").lower())
      if inp=="q":
       break
+     elif inp=="s":
+          search()
      elif inp=="a":
-          ad(df)
+          ad(dfo)
      elif inp=="d":
-          dl(df)  
+          dl(dfo)  
+     else:
+          pass     
 
 
 def offline():
  df = pd.read_csv('data.csv')
+ num_rows = len(df.index)
+ def nm(n):
+    x=df.loc[n, "Name"]
+    return str(x)
+
  while True:
      xx="+-----------------Offline mode------------------+"
      x=""+xx
@@ -214,13 +234,29 @@ def offline():
      elif inp=="d":
           dl(df)     
      else:
-      sub_menu_offline(df,inp)
+      sub_menu_offline(inp)
 
-def sub_menu_offline(df,inp):
-     print("offline")
+def sub_menu_offline(ticker):
+    while True: 
+     print("+-----------------Sub Menu-----------------+")
+     print("|1.For Historical Stock Prices press 1     |")    
+     print("|2.For Adjusted Close Price press 2        |")  
+     print("|3.For Volume Data press 3                 |")
+     print("+------------------------------------------+")
+     innp=input("Enter:").upper()
+     if str(innp) == "B":
+        break
+     else:
+         match int(innp):
+            case 1:
+                historical(ticker)
+            case 2:
+                closeplot(ticker)
+            case 3:
+                volume(ticker)
+     
 
-def sub_menu_online(df,inp):      
-      ticker=df.iloc[int(inp)-1,2]
+def sub_menu_online(ticker):      
       while True:
          print("+-----------------Sub Menu-----------------+")
          print("|1.For Historical Stock Prices press 1     |")    
@@ -261,3 +297,17 @@ def sub_menu_online(df,inp):
                 case _:
                     print("ERROR")
                     pass
+
+while True:
+     print("+--------Choose-App-Mode--------+")
+     print("| 1. Press N for online mode    |")
+     print("| 2. Press F for offline mode   |")
+     print("+-------------------------------+")
+     innnp=input("Enter:").lower()
+     if innnp=="n":
+          online()
+
+     elif innnp=="f":
+          offline()
+     else:
+          pass          

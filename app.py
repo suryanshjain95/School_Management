@@ -40,13 +40,50 @@ def dl(df):
      df.to_csv("data.csv",index=False)
      df = pd.read_csv('data.csv')
 
-# Get the data
-     
+# Get the data from offline
+
+def historical_offline(ticker):
+          xyz="data/"+str(ticker)+".csv"
+          data=pd.read_csv(xyz)
+
+          print("Historical Stock Prices")
+          frame(data.tail()) # Display last 5 rows
+
+def closeplot_offline(ticker):
+          xyz="data/"+str(ticker)+".csv"
+          data=pd.read_csv(xyz)
+
+          # Plot adjusted close price data
+          plt.plot(data['Close'])
+          plt.xlabel('Date')
+          print('Adjusted Close Price')
+          plt.title(f'{ticker} Adjusted Close Price Data')
+          plt.show()
+          plt.savefig('my_plot.png')          
+
+
+def volume_offline(ticker):
+          xyz="data/"+str(ticker)+".csv"
+          data=pd.read_csv(xyz)
+
+          # Add more plots and data:
+          print("Volume Data")
+          plt.plot(data['Volume'], color='orange')
+          plt.xlabel('Date')
+          plt.ylabel('Volume')
+          plt.title(f'{ticker} Trading Volume')
+          plt.show()
+          plt.savefig('my_plot.png')
+
+# Get Data from online
+
 def historical(ticker):
           data = yf.download(ticker, start_date, end_date)
 
           print("Historical Stock Prices")
           frame(data.tail()) # Display last 5 rows
+          xyz="data/"+str(ticker)+".csv"
+          data.to_csv(xyz, index=False)
 
 def closeplot(ticker):
           data = yf.download(ticker, start_date, end_date)
@@ -234,9 +271,11 @@ def offline():
      elif inp=="d":
           dl(df)     
      else:
-      sub_menu_offline(inp)
+      sub_menu_offline(df,inp)
 
-def sub_menu_offline(ticker):
+def sub_menu_offline(df,inp):
+    inp=int(inp)-1
+    ticker=df.loc[inp,"stock"]
     while True: 
      print("+-----------------Sub Menu-----------------+")
      print("|1.For Historical Stock Prices press 1     |")    
@@ -249,11 +288,11 @@ def sub_menu_offline(ticker):
      else:
          match int(innp):
             case 1:
-                historical(ticker)
+                historical_offline(ticker)
             case 2:
-                closeplot(ticker)
+                closeplot_offline(ticker)
             case 3:
-                volume(ticker)
+                volume_offline(ticker)
      
 
 def sub_menu_online(ticker):      

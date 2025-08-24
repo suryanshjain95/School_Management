@@ -82,8 +82,7 @@ def historical(ticker):
 
           print("Historical Stock Prices")
           frame(data.tail()) # Display last 5 rows
-          xyz="data/"+str(ticker)+".csv"
-          data.to_csv(xyz, index=False)
+          
 
 def closeplot(ticker):
           data = yf.download(ticker, start_date, end_date)

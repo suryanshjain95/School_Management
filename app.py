@@ -1,3 +1,10 @@
+#
+# STOCK ANALYSIS TOOL
+# This script uses the yfinance library to fetch and display stock data.
+# It can operate in online mode (fetching live data) or offline mode (using local CSV files).
+# It also includes robust error handling for user input, file operations, and API calls.
+#
+
 import pandas as pd
 import yfinance as yf
 from datetime import date
@@ -6,346 +13,471 @@ import matplotlib.pyplot as plt
 from tabulate import tabulate
 
 
-##########
-df = pd.read_csv('data.csv')
-dfo=df
-##########
+def printw(text):
+    """Prints the given text in bright white."""
+    BRIGHT_WHITE = '\033[97m'
+    RESET = '\033[0m'
+    print(f"{BRIGHT_WHITE}{text}{RESET}")
+
+def printr(text):
+    """Prints the given text in bright red."""
+    BRIGHT_RED = '\033[91m'
+    RESET = '\033[0m'
+    print(f"{BRIGHT_RED}{text}{RESET}")
+
+def printg(text):
+    """Prints the given text in bright green."""
+    BRIGHT_GREEN = '\033[92m'
+    RESET = '\033[0m'
+    print(f"{BRIGHT_GREEN}{text}{RESET}")
+
+# Global variables
+try:
+    # Attempt to read the stocks from the CSV file.
+    # This try-except block handles the case where the file doesn't exist.
+    main_df = pd.read_csv('data.csv')
+    printw("Stocks loaded from data.csv.")
+except FileNotFoundError:
+    printw("data.csv not found. Creating a new empty DataFrame.")
+    # Define a new DataFrame if the file is not found
+    main_df = pd.DataFrame(columns=['sno', 'Name', 'stock'])
+    # Optional: Save an empty CSV to the disk so it's created
+    main_df.to_csv("data.csv", index=False)
+except Exception as e:
+    printw(f"An error occurred while loading data.csv: {e}")
+    # Define a new DataFrame if an error occurred while loading
+    main_df = pd.DataFrame(columns=['sno', 'Name', 'stock'])
 
 
 today = date.today()
-
 start_date = '1990-01-01'
 end_date = today
 
+# =========================================================================
+# === Data Manipulation Functions =========================================
+# =========================================================================
+
 def frame(df):
-     index_list = list(df.index)
-     table = tabulate(df, headers=index_list, tablefmt="grid")
-     print(table)
+    """
+    Prints a DataFrame in a formatted table.
+    """
+    if df.empty:
+        printg("No data to display.")
+        return
+    
+    # Check if the index is a DatetimeIndex and if so, convert it to a simple list for tabulate
+    if isinstance(df.index, pd.DatetimeIndex):
+        table = tabulate(df, headers=df.columns, tablefmt="grid")
+    else:
+        index_list = list(df.index)
+        table = tabulate(df, headers=index_list, tablefmt="grid")
+    
+    return table
 
-def ad(df):
-     e1=input("Enter Stock name:")
-     e2=input("Enter Stock Id:").upper()
-     x=len(df)+1
-     df.loc[len(df)]=[x,e1,e2]
-     #e=pd.DataFrame({'SNo':[len(df)],'Name':[e1],'stock': [e2]})
-     #df = pd.concat([df, e], ignore_index=True)
-     df.to_csv("data.csv",index=False)
-     df = pd.read_csv('data.csv')
+def add_stock(df):
+    """
+    Adds a new stock to the DataFrame and saves it to data.csv.
+    """
+    global main_df
+    stock_name = input("Enter Stock name:").strip()
+    stock_id = input("Enter Stock ID:").strip().upper()
 
-def dl(df):
-     e=input("Enter Stock name:")
-     df=df.drop(np.where(df['Name'] ==e)[0])
-     #df=df.drop(e)
-     print(df)
-     df.to_csv("data.csv",index=False)
-     df = pd.read_csv('data.csv')
+    if not stock_name or not stock_id:
+        printg("Stock name and ID cannot be empty.")
+        return
 
-# Get the data from offline
+    new_row = {'sno': len(main_df) + 1, 'Name': stock_name, 'stock': stock_id}
+    main_df = pd.concat([main_df, pd.DataFrame([new_row])], ignore_index=True)
+    main_df.to_csv("data.csv", index=False)
+    printg(f"Stock '{stock_name}' with ID '{stock_id}' added successfully.")
+
+def delete_stock(df):
+    """
+    Deletes a stock from the DataFrame and saves the changes.
+    """
+    global main_df
+    stock_name_to_delete = input("Enter Stock name to delete:").strip()
+
+    if stock_name_to_delete not in main_df['Name'].values:
+        printg(f"Error: Stock '{stock_name_to_delete}' not found in the list.")
+        return
+        
+    main_df = main_df.drop(main_df[main_df['Name'] == stock_name_to_delete].index)
+    main_df.to_csv("data.csv", index=False)
+    printg(f"Stock '{stock_name_to_delete}' deleted successfully.")
+
+# =========================================================================
+# === OFFLINE MODE FUNCTIONS (Local data) =================================
+# =========================================================================
 
 def historical_offline(ticker):
-          xyz="data/"+str(ticker)+".csv"
-          data=pd.read_csv(xyz)
-
-          print("Historical Stock Prices")
-          frame(data.tail()) # Display last 5 rows
+    """Fetches historical data from a local CSV file."""
+    file_path = f"data/{ticker}.csv"
+    try:
+        data = pd.read_csv(file_path)
+        printr("\nHistorical Stock Prices (Offline Data)")
+        printr(frame(data.tail())) # Display last 5 rows
+    except FileNotFoundError:
+        printr(f"Error: Data file for {ticker} not found at {file_path}.")
+    except Exception as e:
+        printr(f"An unexpected error occurred while reading the file: {e}")
 
 def closeplot_offline(ticker):
-          xyz="data/"+str(ticker)+".csv"
-          data=pd.read_csv(xyz)
-
-          # Plot adjusted close price data
-          plt.plot(data['Close'])
-          plt.xlabel('Date')
-          print('Adjusted Close Price')
-          plt.title(f'{ticker} Adjusted Close Price Data')
-          plt.show()
-          plt.savefig('my_plot.png')          
-
+    """Plots adjusted close price from a local CSV file."""
+    file_path = f"data/{ticker}.csv"
+    try:
+        data = pd.read_csv(file_path)
+        plt.figure(figsize=(10, 6))
+        plt.plot(data['Close'])
+        plt.xlabel('Date')
+        plt.ylabel('Adjusted Close Price')
+        plt.title(f'{ticker} Adjusted Close Price Data (Offline)')
+        plt.grid(True)
+        plt.show()
+        plt.savefig(f'offline_{ticker}_close_price.png')
+    except FileNotFoundError:
+        printr(f"Error: Data file for {ticker} not found at {file_path}.")
+    except Exception as e:
+        printr(f"An error occurred while plotting: {e}")
 
 def volume_offline(ticker):
-          xyz="data/"+str(ticker)+".csv"
-          data=pd.read_csv(xyz)
+    """Plots trading volume from a local CSV file."""
+    file_path = f"data/{ticker}.csv"
+    try:
+        data = pd.read_csv(file_path)
+        plt.figure(figsize=(10, 6))
+        plt.plot(data['Volume'], color='orange')
+        plt.xlabel('Date')
+        plt.ylabel('Volume')
+        plt.title(f'{ticker} Trading Volume (Offline)')
+        plt.grid(True)
+        plt.show()
+        plt.savefig(f'offline_{ticker}_volume.png')
+    except FileNotFoundError:
+        printr(f"Error: Data file for {ticker} not found at {file_path}.")
+    except Exception as e:
+        printr(f"An error occurred while plotting: {e}")
 
-          # Add more plots and data:
-          print("Volume Data")
-          plt.plot(data['Volume'], color='orange')
-          plt.xlabel('Date')
-          plt.ylabel('Volume')
-          plt.title(f'{ticker} Trading Volume')
-          plt.show()
-          plt.savefig('my_plot.png')
-
-# Get Data from online
+# =========================================================================
+# === ONLINE MODE FUNCTIONS (Live data via yfinance) ======================
+# =========================================================================
 
 def historical(ticker):
-          data = yf.download(ticker, start_date, end_date)
-
-          print("Historical Stock Prices")
-          frame(data.tail()) # Display last 5 rows
-          
+    """Fetches and displays historical data from yfinance."""
+    try:
+        data = yf.download(ticker, start_date, end_date)
+        if data.empty:
+            printg(f"No historical data found for ticker: {ticker}")
+            return
+        
+        printg("\nHistorical Stock Prices")
+        printg(frame(data.tail()))
+    except Exception as e:
+        printg(f"An unexpected error occurred while fetching data: {e}")
 
 def closeplot(ticker):
-          data = yf.download(ticker, start_date, end_date)
-
-          # Plot adjusted close price data
-          plt.plot(data['Close'])
-          plt.xlabel('Date')
-          print('Adjusted Close Price')
-          plt.title(f'{ticker} Adjusted Close Price Data')
-          plt.show()
-          plt.savefig('my_plot.png')
+    """Plots adjusted close price from yfinance data."""
+    try:
+        data = yf.download(ticker, start_date, end_date)
+        if data.empty:
+            printg(f"No data found to plot for ticker: {ticker}")
+            return
+        
+        plt.figure(figsize=(10, 6))
+        plt.plot(data['Close'])
+        plt.xlabel('Date')
+        plt.ylabel('Adjusted Close Price')
+        plt.title(f'{ticker} Adjusted Close Price Data')
+        plt.grid(True)
+        plt.show()
+        plt.savefig(f'{ticker}_close_price.png')
+    except Exception as e:
+        printg(f"An unexpected error occurred while plotting: {e}")
 
 def volume(ticker):
-          data = yf.download(ticker, start_date, end_date)
-
-          # Add more plots and data:
-          print("Volume Data")
-          plt.plot(data['Volume'], color='orange')
-          plt.xlabel('Date')
-          plt.ylabel('Volume')
-          plt.title(f'{ticker} Trading Volume')
-          plt.show()
-          plt.savefig('my_plot.png')
+    """Plots trading volume from yfinance data."""
+    try:
+        data = yf.download(ticker, start_date, end_date)
+        if data.empty:
+            printg(f"No data found to plot for ticker: {ticker}")
+            return
+            
+        plt.figure(figsize=(10, 6))
+        plt.plot(data['Volume'], color='orange')
+        plt.xlabel('Date')
+        plt.ylabel('Volume')
+        plt.title(f'{ticker} Trading Volume')
+        plt.grid(True)
+        plt.show()
+        plt.savefig(f'{ticker}_volume.png')
+    except Exception as e:
+        printg(f"An unexpected error occurred while plotting: {e}")
           
 def divident(ticker):
-          # Dividends and Stock Splits
-          print("Dividends and Stock Splits")
-          stock = yf.Ticker(ticker)
-          dividends = stock.dividends
-          splits = stock.splits
+    """Displays dividend and stock split information."""
+    try:
+        stock = yf.Ticker(ticker)
+        printg("\nDividends and Stock Splits")
+        
+        dividends = stock.dividends
+        if not dividends.empty:
+            printg("Dividends:")
+            printg(dividends)
+        else:
+            print("No dividend data available for this stock.")
 
-          if not dividends.empty:
-              print("Dividends:")
-              print(dividends)
-          else:
-              print("No dividend data available for this stock.")
-
-          if not splits.empty:
-              print("Stock Splits:")
-              print(splits)
-          else:
-              print("No stock split data available for this stock.")
+        splits = stock.splits
+        if not splits.empty:
+            printg("\nStock Splits:")
+            printg(splits)
+        else:
+            printg("No stock split data available for this stock.")
+    except Exception as e:
+        printg(f"An error occurred while fetching data: {e}")
 
 def statement(ticker):
-          # Financial Statements (Income Statement, Balance Sheet, Cash Flow)
-          stock = yf.Ticker(ticker)
-          print("Financial Statements")
+    """Displays financial statements."""
+    try:
+        stock = yf.Ticker(ticker)
+        printg("\nFinancial Statements (Annual)")
 
-          try:
-              print("Income Statement (Annual)")
-              print(stock.financials)
-          except Exception as e:
-              print(f"Could not retrieve annual income statement: {e}")
+        printg("--- Income Statement ---")
+        printg(frame(stock.financials))
 
-          try:
-              print("Balance Sheet (Annual)")
-              frame(stock.balance_sheet)
-          except Exception as e:
-              print(f"Could not retrieve annual balance sheet: {e}")
+        printg("\n--- Balance Sheet ---")
+        printg(frame(stock.balance_sheet))
+        
+        printg("\n--- Cash Flow Statement ---")
+        printg(frame(stock.cashflow))
 
-          try:
-              print("Cash Flow Statement (Annual)")
-              frame(stock.cashflow)
-          except Exception as e:
-              print(f"Could not retrieve annual cash flow statement: {e}")
+    except Exception as e:
+        printg(f"An error occurred while fetching data: {e}")
 
 def quartely(ticker):
-          stock = yf.Ticker(ticker)
-          # Quarterly Financials
-          print("Quarterly Financials")
-          try:
-              print("Income Statement (Quarterly)")
-              print(stock.quarterly_financials)
-          except Exception as e:
-              print(f"Could not retrieve quarterly income statement: {e}")
+    """Displays quarterly financial statements."""
+    try:
+        stock = yf.Ticker(ticker)
+        printg("\nQuarterly Financials")
 
-          try:
-              print("Balance Sheet (Quarterly)")
-              frame(stock.quarterly_balance_sheet)
-          except Exception as e:
-              print(f"Could not retrieve quarterly balance sheet: {e}")
+        printg("--- Income Statement ---")
+        printg(frame(stock.quarterly_financials))
 
-          try:
-              print("Cash Flow Statement (Quarterly)")
-              frame(stock.quarterly_cashflow)
-          except Exception as e:
-              print(f"Could not retrieve quarterly cash flow statement: {e}")
+        printg("\n--- Balance Sheet ---")
+        printg(frame(stock.quarterly_balance_sheet))
+        
+        printg("\n--- Cash Flow Statement ---")
+        printg(frame(stock.quarterly_cashflow))
+    except Exception as e:
+        printg(f"An error occurred while fetching data: {e}")
 
 def share(ticker):
-          stock = yf.Ticker(ticker)      
-          # Institutional Shareholders
-          print("Institutional Shareholders")
-          try:
-              frame(stock.institutional_holders)
-          except Exception as e:
-              print(f"Could not retrieve institutional holders: {e}")
+    """Displays institutional shareholders."""
+    try:
+        stock = yf.Ticker(ticker)      
+        printg("\nInstitutional Shareholders")
+        printg(frame(stock.institutional_holders))
+    except Exception as e:
+        printg(f"An error occurred while fetching data: {e}")
 
 def analyst(ticker):
-          stock = yf.Ticker(ticker)      
-          # Analyst Recommendations
-          print("Analyst Recommendations")
-          try:
-              frame(stock.recommendations)
-          except Exception as e:
-              print(f"Could not retrieve analyst recommendations: {e}")
+    """Displays analyst recommendations."""
+    try:
+        stock = yf.Ticker(ticker)      
+        printg("\nAnalyst Recommendations")
+        printg(frame(stock.recommendations))
+    except Exception as e:
+        printg(f"An error occurred while fetching data: {e}")
 
 def infrom(ticker):
-          stock = yf.Ticker(ticker)      
-          # Company Info (Summary)
-          print("Company Information")
-          try:
-              info = stock.info
-              print(f"Sector: {info.get('sector', 'N/A')}")
-              print(f"Industry: {info.get('industry', 'N/A')}")
-              print(f"Full Time Employees: {info.get('fullTimeEmployees', 'N/A')}")
-              print(f"Website: {info.get('website', 'N/A')}")
-              print("Summary:")
-              print(info.get('longBusinessSummary', 'N/A'))
-          except Exception as e:
-              print(f"Could not retrieve company information: {e}")
-            
+    """Displays company information."""
+    try:
+        stock = yf.Ticker(ticker)      
+        printg("\nCompany Information")
+        info = stock.info
+        printg(f"Sector: {info.get('sector', 'N/A')}")
+        printg(f"Industry: {info.get('industry', 'N/A')}")
+        printg(f"Full Time Employees: {info.get('fullTimeEmployees', 'N/A')}")
+        printg(f"Website: {info.get('website', 'N/A')}")
+        printg("Summary:")
+        printg(info.get('longBusinessSummary', 'N/A'))
+    except Exception as e:
+        printg(f"An error occurred while fetching data: {e}")
 
-
-
-
+# =========================================================================
+# === MENU NAVIGATION FUNCTIONS ===========================================
+# =========================================================================
 
 def search():
-     global dfo
-     inp=input("Enter Stock you want to search for:")
-     row_index = dfo[dfo['Name'] == inp].index[0]
-     print(row_index)
-     x=dfo.loc[row_index,"stock"]
-     sub_menu_online(x)
+    """Searches for a stock name and opens the online sub-menu."""
+    global main_df
+    stock_name = input("Enter Stock name you want to search for:").strip()
+    try:
+        row = main_df[main_df['Name'] == stock_name]
+        if row.empty:
+            printg(f"Error: Stock '{stock_name}' not found in your list.")
+            return
+        
+        ticker = row.iloc[0]['stock']
+        sub_menu_online(ticker)
+    except Exception as e:
+        printg(f"An error occurred while searching: {e}")
 
 
-def online():
-  while True:   
-     print("+------------------Online mode------------------+\n",
-           "| 1.Press S to search stock                     |\n",
-           "| 2.Press A to add stock                        |\n",
-           "| 3.Press D to delete stock                     |\n",
-           "| 4.Press Q to quit                             |\n",
-           "+-----------------------------------------------+")
-     inp=str(input("Enter:").lower())
-     if inp=="q":
-      break
-     elif inp=="s":
-          search()
-     elif inp=="a":
-          ad(dfo)
-     elif inp=="d":
-          dl(dfo)  
-     else:
-          pass     
+def online_menu():
+    """Main menu for online mode."""
+    while True:   
+        printg("\n+------------------Online Mode------------------+")
+        printg("| 1. Press S to search stock                    |")
+        printg("| 2. Press A to add a stock                     |")
+        printg("| 3. Press D to delete a stock                  |")
+        printg("| 4. Press Q to quit online mode                |")
+        printg("+-----------------------------------------------+")
+        user_input = input("Enter:").strip().lower()
+
+        if user_input == "q":
+            break
+        elif user_input == "s":
+            search()
+        elif user_input == "a":
+            add_stock(main_df)
+        elif user_input == "d":
+            delete_stock(main_df)  
+        else:
+            printg("Invalid option. Please try again.")
 
 
-def offline():
- df = pd.read_csv('data.csv')
- num_rows = len(df.index)
- def nm(n):
-    x=df.loc[n, "Name"]
-    return str(x)
+def offline_menu():
+    """Main menu for offline mode."""
+    global main_df
+    num_rows = len(main_df.index)
+    
+    def nm(n):
+      x=main_df.loc[n, "Name"]
+      return str(x)
 
- while True:
-     xx="+-----------------Offline mode------------------+"
-     x=""+xx
-     for i in range(0,num_rows,1):
-        y=str(i+1)
-        x1=y+". For "+nm(i)+" press "+y
-        z=len(xx)-len(x1)-2
-        t=" "*z
-        x=x+"\n|"+x1+t+"|"
+    while True:
+        xx="+-----------------Offline mode------------------+"
+        x=""+xx
+        for i in range(0,num_rows,1):
+           y=str(i+1)
+           x1=y+". For "+nm(i)+" press "+y
+           z=len(xx)-len(x1)-2
+           t=" "*z
+           x=x+"\n|"+x1+t+"|"
    
-      
-     print(x+"\n|"+str(len(df)+1)+". Press A to add new stock                   "+"|\n|"+str(len(df)+2)+
+        printr(x+"\n|"+str(len(main_df)+1)+". Press A to add new stock                   "+"|\n|"+str(len(main_df)+2)+
            ". Press D to delete a stock                  "+
-           "|\n+-----------------------------------------------+")
+           "|\n| Q. Press Q to quit offline mode               |\n+-----------------------------------------------+")
+        
+        
+        user_input = input("Enter:").strip().lower()
 
-     inp=str(input("Enter:").lower())
+        if user_input == "q":
+            break
+        else:
+            try:
+                selection = int(user_input)
+                if 1 <= selection <= len(main_df):
+                    ticker = main_df.loc[selection - 1, "stock"]
+                    sub_menu_offline(ticker)
+                else:
+                    printr("Invalid number. Please select a number from the list.")
+            except ValueError:
+                printr("Invalid input. Please enter a number or a valid command (A, D, Q).")
 
-     if inp=="q":
-      break
-     elif inp=="a":
-          ad(df)
-     elif inp=="d":
-          dl(df)     
-     else:
-      sub_menu_offline(df,inp)
 
-def sub_menu_offline(df,inp):
-    inp=int(inp)-1
-    ticker=df.loc[inp,"stock"]
+def sub_menu_offline(ticker):
+    """Sub-menu for offline stock analysis."""
     while True: 
-     print("+-----------------Sub Menu-----------------+")
-     print("|1.For Historical Stock Prices press 1     |")    
-     print("|2.For Adjusted Close Price press 2        |")  
-     print("|3.For Volume Data press 3                 |")
-     print("+------------------------------------------+")
-     innp=input("Enter:").upper()
-     if str(innp) == "B":
-        break
-     else:
-         match int(innp):
-            case 1:
+        printr(f"\n+-----------------Sub Menu Offline---------------------+")
+        printr("| 1. For Historical Stock Prices press 1               |")    
+        printr("| 2. For Adjusted Close Price press 2                  |")  
+        printr("| 3. For Volume Data press 3                           |")
+        printr("| B. For going back to main menu press B               |")
+        printr("+------------------------------------------------------+")
+        
+        user_input = input("Enter:").strip().upper()
+        if user_input == "B":
+            break
+        
+        try:
+            selection = int(user_input)
+            if selection == 1:
                 historical_offline(ticker)
-            case 2:
+            elif selection == 2:
                 closeplot_offline(ticker)
-            case 3:
+            elif selection == 3:
                 volume_offline(ticker)
+            else:
+                printr("Invalid selection. Please choose 1, 2, 3, or B.")
+        except ValueError:
+            printr("Invalid input. Please enter a number or 'B'.")
      
 
-def sub_menu_online(ticker):      
-      while True:
-         print("+-----------------Sub Menu-----------------+")
-         print("|1.For Historical Stock Prices press 1     |")    
-         print("|2.For Adjusted Close Price press 2        |")  
-         print("|3.For Volume Data press 3                 |")
-         print("|4.For Dividends and Stock Splits press 4  |") 
-         print("|5.For Financial Statements press 5        |") 
-         print("|5.For Quarterly Financials press 6        |")   
-         print("|5.For Institutional Shareholders press 7  |")    
-         print("|5.For Analyst Recommendations press 8     |")
-         print("|5.For Company Info press 9                |")
-         print("|10.For going back to main menu press B    |")
-         print("+------------------------------------------+")  
+def sub_menu_online(ticker):
+    """Sub-menu for online stock analysis."""      
+    while True:
+        printg(f"\n+-----------------Sub Menu-----------------------------+")
+        printg("| 1. For Historical Stock Prices press 1               |")    
+        printg("| 2. For Adjusted Close Price press 2                  |")  
+        printg("| 3. For Volume Data press 3                           |")
+        printg("| 4. For Dividends and Stock Splits press 4            |") 
+        printg("| 5. For Financial Statements press 5                  |") 
+        printg("| 6. For Quarterly Financials press 6                  |")   
+        printg("| 7. For Institutional Shareholders press 7            |")    
+        printg("| 8. For Analyst Recommendations press 8               |")
+        printg("| 9. For Company Info press 9                          |")
+        printg("| B. For going back to main menu press B               |")
+        printg("+------------------------------------------------------+")  
 
-         innp=input("Enter:").upper()
-         if str(innp) == "B":
+        user_input = input("Enter:").strip().upper()
+        if user_input == "B":
             break
-         else:
-            match int(innp):
-                case 1:
-                    historical(ticker)
-                case 2:
-                    closeplot(ticker)
-                case 3:
-                    volume(ticker)
-                case 4:
-                    divident(ticker)
-                case 5:
-                    statement(ticker)
-                case 6:
-                    quartely(ticker)
-                case 7:
-                    share(ticker)
-                case 8:
-                    analyst(ticker)
-                case 9:
-                    infrom(ticker)
-                case _:
-                    print("ERROR")
-                    pass
+        
+        try:
+            selection = int(user_input)
+            if selection == 1:
+                historical(ticker)
+            elif selection == 2:
+                closeplot(ticker)
+            elif selection == 3:
+                volume(ticker)
+            elif selection == 4:
+                divident(ticker)
+            elif selection == 5:
+                statement(ticker)
+            elif selection == 6:
+                quartely(ticker)
+            elif selection == 7:
+                share(ticker)
+            elif selection == 8:
+                analyst(ticker)
+            elif selection == 9:
+                infrom(ticker)
+            else:
+                printg("Invalid selection. Please choose a number from the menu.")
+        except ValueError:
+            printg("Invalid input. Please enter a number or 'B'.")
 
-while True:
-     print("+--------Choose-App-Mode--------+")
-     print("| 1. Press N for online mode    |")
-     print("| 2. Press F for offline mode   |")
-     print("+-------------------------------+")
-     innnp=input("Enter:").lower()
-     if innnp=="n":
-          online()
+# =========================================================================
+# === MAIN APPLICATION LOOP ===============================================
+# =========================================================================
 
-     elif innnp=="f":
-          offline()
-     else:
-          pass          
+if __name__ == "__main__":
+    while True:
+        printw("\n+--------Choose App Mode--------+")
+        print("\033[97m|\033[92m 1. Press N for Online Mode    \033[97m|")
+        print("\033[97m|\033[91m 2. Press F for Offline Mode   \033[97m|")
+        printw("| 3. Press Q to Quit            |")
+        printw("+-------------------------------+")
+        app_mode = input("Enter:").strip().lower()
+
+        if app_mode == "n":
+            online_menu()
+        elif app_mode == "f":
+            offline_menu()
+        elif app_mode == "q":
+            printw("Thank you for using the stock analysis tool. Goodbye!")
+            break
+        else:
+            printw("Invalid mode. Please enter 'N', 'F', or 'Q'.")

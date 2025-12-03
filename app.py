@@ -8,10 +8,10 @@
 import pandas as pd
 import yfinance as yf
 from datetime import date
-import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 from tabulate import tabulate
-
+import os
 
 def printw(text):
     """Prints the given text in bright white."""
@@ -110,11 +110,11 @@ def delete_stock(df):
 # === OFFLINE MODE FUNCTIONS (Local data) =================================
 # =========================================================================
 
-def historical_offline(ticker):
+def historical_offline(ticker,data,file_path):
     """Fetches historical data from a local CSV file."""
-    file_path = f"data/{ticker}.csv"
+    
     try:
-        data = pd.read_csv(file_path)
+        
         printr("\nHistorical Stock Prices (Offline Data)")
         printr(frame(data.tail())) # Display last 5 rows
     except FileNotFoundError:
@@ -124,37 +124,29 @@ def historical_offline(ticker):
 
 def closeplot_offline(ticker):
     """Plots adjusted close price from a local CSV file."""
-    file_path = f"data/{ticker}.csv"
+    
     try:
-        data = pd.read_csv(file_path)
-        plt.figure(figsize=(10, 6))
-        plt.plot(data['Close'])
-        plt.xlabel('Date')
-        plt.ylabel('Adjusted Close Price')
-        plt.title(f'{ticker} Adjusted Close Price Data (Offline)')
-        plt.grid(True)
+        
+        img = mpimg.imread(f'//workspaces//School_Management//closeplot//{ticker}_closeplot.png')
+
+        # Display the image
+        plt.imshow(img)
+        plt.axis('off') 
         plt.show()
-        plt.savefig(f'offline_{ticker}_close_price.png')
-    except FileNotFoundError:
-        printr(f"Error: Data file for {ticker} not found at {file_path}.")
     except Exception as e:
         printr(f"An error occurred while plotting: {e}")
 
 def volume_offline(ticker):
     """Plots trading volume from a local CSV file."""
-    file_path = f"data/{ticker}.csv"
+    
     try:
-        data = pd.read_csv(file_path)
-        plt.figure(figsize=(10, 6))
-        plt.plot(data['Volume'], color='orange')
-        plt.xlabel('Date')
-        plt.ylabel('Volume')
-        plt.title(f'{ticker} Trading Volume (Offline)')
-        plt.grid(True)
+        img = mpimg.imread(f'//workspaces//School_Management//volume//{ticker}_volume.png')
+
+        # Display the image
+        plt.imshow(img)
+        plt.axis('off') 
         plt.show()
-        plt.savefig(f'offline_{ticker}_volume.png')
-    except FileNotFoundError:
-        printr(f"Error: Data file for {ticker} not found at {file_path}.")
+        
     except Exception as e:
         printr(f"An error occurred while plotting: {e}")
 
@@ -172,6 +164,8 @@ def historical(ticker):
         
         printg("\nHistorical Stock Prices")
         printg(frame(data.tail()))
+
+
     except Exception as e:
         printg(f"An unexpected error occurred while fetching data: {e}")
 
@@ -190,7 +184,10 @@ def closeplot(ticker):
         plt.title(f'{ticker} Adjusted Close Price Data')
         plt.grid(True)
         plt.show()
-        plt.savefig(f'{ticker}_close_price.png')
+        if os.path.exists(f'//workspaces//School_Management//volume//{ticker}_volume.png'): 
+            os.remove(f'//workspaces//School_Management//volume//{ticker}_volume.png')
+        
+        plt.savefig(f'//workspaces//School_Management//closeplot//{ticker}_closeplot.png')
     except Exception as e:
         printg(f"An unexpected error occurred while plotting: {e}")
 
@@ -209,7 +206,10 @@ def volume(ticker):
         plt.title(f'{ticker} Trading Volume')
         plt.grid(True)
         plt.show()
-        plt.savefig(f'{ticker}_volume.png')
+        if os.path.exists(f'//workspaces//School_Management//volume//{ticker}_volume.png'): 
+            os.remove(f'//workspaces//School_Management//volume//{ticker}_volume.png')
+        
+        plt.savefig(f'//workspaces//School_Management//volume//{ticker}_volume.png')
     except Exception as e:
         printg(f"An unexpected error occurred while plotting: {e}")
           
@@ -318,6 +318,10 @@ def search():
             return
         
         ticker = row.iloc[0]['stock']
+        data = yf.download(ticker, start_date, end_date)
+        x="/workspaces/School_Management/data/"+str(ticker)+".csv"
+        if not os.path.exists(x):
+           data.to_csv(x)
         sub_menu_online(ticker)
     except Exception as e:
         printg(f"An error occurred while searching: {e}")
@@ -388,6 +392,11 @@ def offline_menu():
 
 def sub_menu_offline(ticker):
     """Sub-menu for offline stock analysis."""
+
+    file_path = f"data/{ticker}.csv"
+    data1 = pd.read_csv(file_path,index_col="Price")
+    data2=data1.drop(["Ticker","Date"], axis=0)
+
     while True: 
         printr(f"\n+-----------------Sub Menu Offline---------------------+")
         printr("| 1. For Historical Stock Prices press 1               |")    
@@ -403,7 +412,7 @@ def sub_menu_offline(ticker):
         try:
             selection = int(user_input)
             if selection == 1:
-                historical_offline(ticker)
+                historical_offline(ticker,data2,file_path)
             elif selection == 2:
                 closeplot_offline(ticker)
             elif selection == 3:

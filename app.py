@@ -428,7 +428,7 @@ def sub_menu_online(ticker):
         printg("| 5. For Financial Statements press 5                  |") 
         printg("| 6. For Quarterly Financials press 6                  |")   
         printg("| 7. For Institutional Shareholders press 7            |")    
-        printg("| 8. For Company Info press 9                          |")
+        printg("| 8. For Company Info press 8                          |")
         printg("| B. For going back to main menu press B               |")
         printg("+------------------------------------------------------+")  
 

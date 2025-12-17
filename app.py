@@ -279,15 +279,6 @@ def share(ticker):
     except Exception as e:
         printg(f"An error occurred while fetching data: {e}")
 
-def analyst(ticker):
-    """Displays analyst recommendations."""
-    try:
-        stock = yf.Ticker(ticker)      
-        printg("\nAnalyst Recommendations")
-        printg(frame(stock.recommendations))
-    except Exception as e:
-        printg(f"An error occurred while fetching data: {e}")
-
 def infrom(ticker):
     """Displays company information."""
     try:
@@ -322,6 +313,9 @@ def search():
         x="/workspaces/School_Management/data/"+str(ticker)+".csv"
         if not os.path.exists(x):
            data.to_csv(x)
+        if os.path.exists(x):
+           os.remove(x)
+           data.to_csv(x)   
         sub_menu_online(ticker)
     except Exception as e:
         printg(f"An error occurred while searching: {e}")
@@ -434,8 +428,7 @@ def sub_menu_online(ticker):
         printg("| 5. For Financial Statements press 5                  |") 
         printg("| 6. For Quarterly Financials press 6                  |")   
         printg("| 7. For Institutional Shareholders press 7            |")    
-        printg("| 8. For Analyst Recommendations press 8               |")
-        printg("| 9. For Company Info press 9                          |")
+        printg("| 8. For Company Info press 9                          |")
         printg("| B. For going back to main menu press B               |")
         printg("+------------------------------------------------------+")  
 
@@ -460,8 +453,6 @@ def sub_menu_online(ticker):
             elif selection == 7:
                 share(ticker)
             elif selection == 8:
-                analyst(ticker)
-            elif selection == 9:
                 infrom(ticker)
             else:
                 printg("Invalid selection. Please choose a number from the menu.")
